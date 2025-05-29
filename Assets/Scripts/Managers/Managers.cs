@@ -2,16 +2,19 @@ using UnityEngine;
 
 public class Managers : MonoBehaviour
 {
-    private static Managers _instance;
+    #region ManagerList
+    public static PoolManager Pool { get; private set; } = new();
+    public static ResourceManager Resource { get; private set; } = new();
+    public static ObjectManager Object { get; private set; } = new();
+    #endregion
 
+    private static Managers _instance;
     public static Managers Instance
     {
         get
         {
             if (_instance == null)
-            {
                 Debug.LogError("Managers가 Init()되지 않았습니다.");
-            }
             return _instance;
         }
     }
@@ -30,16 +33,13 @@ public class Managers : MonoBehaviour
         }
         else
         {
-            _instance = managerObj.GetComponent<Managers>();
-            if (_instance == null)
-            {
-                _instance = managerObj.AddComponent<Managers>();
-            }
+            _instance = managerObj.GetComponent<Managers>() ?? managerObj.AddComponent<Managers>();
         }
 
         DontDestroyOnLoad(managerObj);
         _instance.InitManagers();
         Debug.Log("Managers 초기화 완료");
+
     }
 
     public void Clear()
@@ -50,14 +50,18 @@ public class Managers : MonoBehaviour
     private void InitManagers()
     {
         Debug.Log("하위 매니저 초기화 시작");
-        // 하위 매니저 초기화 로직들
+        Pool.Init();
+        Resource.Init();
+        Object.Init();
         Debug.Log("하위 매니저 초기화 완료");
     }
 
     public void ClearManagers()
     {
         Debug.Log("하위 매니저 종료 시작");
-        // 하위 매니저 정리 로직들
+        Object.Clear();
+        Resource.Clear();
+        Pool.Clear();
         Debug.Log("하위 매니저 종료 완료");
     }
 }
