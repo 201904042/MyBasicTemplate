@@ -6,6 +6,8 @@ public class Managers : MonoBehaviour
     public static PoolManager Pool { get; private set; } = new();
     public static ResourceManager Resource { get; private set; } = new();
     public static ObjectManager Object { get; private set; } = new();
+    public static SceneManagerEx Scene { get; private set; } = new();
+    public static UIManager UI { get; private set; } = new();
     #endregion
 
     private static Managers _instance;
@@ -53,6 +55,8 @@ public class Managers : MonoBehaviour
         Pool.Init();
         Resource.Init();
         Object.Init();
+        Scene.Init();
+        UI.Init();
         Debug.Log("하위 매니저 초기화 완료");
     }
 
@@ -62,6 +66,8 @@ public class Managers : MonoBehaviour
         Object.Clear();
         Resource.Clear();
         Pool.Clear();
+        Scene.Clear();
+        UI.Clear();
         Debug.Log("하위 매니저 종료 완료");
     }
 }

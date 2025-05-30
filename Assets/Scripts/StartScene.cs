@@ -9,9 +9,9 @@ public class StartScene : MonoBehaviour
 
     public void Start()
     {
-        // 프리팹 경로 (Resources 폴더 기준, 확장자 제외)
-        string prefabPath = "Prefabs/TestPrefab";
-
+        // 프리팹 경로 검색
+        string prefabPath = TypeToPath.GetPath(ObjectType.Test);
+        
         // 생성할 위치 배열
         Vector3 position = new Vector3(1, 3, 2);
 

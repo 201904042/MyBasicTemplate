@@ -14,6 +14,9 @@ public class ResourceManager : ManagerBase
         // 리소스 해제 처리
     }
 
+    /// <summary>
+    /// Assets/Resources/ 이후의 경로부터 작성
+    /// </summary>
     public T Load<T>(string path) where T : Object
     {
         // 게임 오브젝트면 풀 원본 우선 조회

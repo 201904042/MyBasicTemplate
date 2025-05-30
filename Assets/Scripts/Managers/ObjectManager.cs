@@ -17,6 +17,7 @@ public class ObjectManager : ManagerBase
 {
     private Dictionary<ObjectType, IObjectFactory> factories = new Dictionary<ObjectType, IObjectFactory>()
     {
+        { ObjectType.Test, new TestFactory() },
         { ObjectType.Player, new PlayerFactory() },
         { ObjectType.Enemy, new EnemyFactory() }
     };
@@ -27,9 +28,14 @@ public class ObjectManager : ManagerBase
     {
         base.Init();
         // 초기화 필요시 구현
-
-        
     }
+
+    public override void Clear()
+    {
+        base.Clear();
+        // 초기화 필요시 구현
+    }
+
 
     public static ObjectType GetObjectType(int id)
     {

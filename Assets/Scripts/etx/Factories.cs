@@ -1,5 +1,22 @@
 using UnityEngine;
 
+public class TestFactory : IObjectFactory
+{
+    public GameObject Create(GameObject prefab, ObjectInform info)
+    {
+        var go = GameObject.Instantiate(prefab);
+        go.name = info.name;
+        go.transform.position = info.Position;
+        go.transform.eulerAngles = info.Rotation;
+        go.transform.localScale = info.Scale;
+
+        //테스트 객체 초기화
+
+        return go;
+    }
+}
+
+
 public class PlayerFactory : IObjectFactory
 {
     public GameObject Create(GameObject prefab, ObjectInform info)
