@@ -5,98 +5,91 @@ using UnityEngine.SceneManagement;
 
 public class SceneManagerEx : ManagerBase
 {
-    private GameObject loadingUIInstance;
-    private LoadingUI loadingUI;
-
     public override void Init()
     {
         base.Init();
-        // 초기화 필요시 구현
     }
 
     public override void Clear()
     {
         base.Clear();
-        // 초기화 필요시 구현
     }
 
-    // 씬 로드 (기존 씬 언로드 포함)
+    /// <summary>
+    /// 기존 씬 언로드 후 새 씬 단독 로드 (UI 포함)
+    /// </summary>
     public void LoadSceneAsync(string sceneName, Action onComplete = null)
     {
-        Managers.Instance.Clear(); // 기존 매니저 클리어(필요시)
-
-        // 코루틴으로 처리 (Managers에 코루틴 실행기능 있다고 가정)
+        Managers.Instance.Clear();
         Managers.Instance.StartCoroutine(LoadSceneCoroutine(sceneName, onComplete));
     }
 
     private IEnumerator LoadSceneCoroutine(string sceneName, Action onComplete)
     {
-        // 기존 씬 언로드
-        var currentScene = SceneManager.GetActiveScene();
-        AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(currentScene);
-        while (!unloadOp.isDone)
-        {
-            yield return null;
-        }
+        // 로딩 UI 시작
+        Managers.UI.ShowLoadingUI("씬을 로드하는 중입니다. 잠시만 기다려주세요...");
 
-        // 로딩 UI 표시
-        ShowLoadingUI();
-
-        // 새 씬 로드
-        AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName);
+        // 새 씬 로드 (Single 모드 = 기존 씬 자동 언로드 + 전환)
+        AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
         loadOp.allowSceneActivation = false;
+
         while (loadOp.progress < 0.9f)
         {
-            UpdateLoadingProgress(loadOp.progress);
+            Managers.UI.UpdateLoadingProgress(loadOp.progress);
             yield return null;
         }
 
-        // 로드 완료 직전까지 진행률 0.9
-        UpdateLoadingProgress(1f);
-
-        // 씬 활성화
+        Managers.UI.UpdateLoadingProgress(1f);
         loadOp.allowSceneActivation = true;
 
-        // 씬 활성화 완료까지 대기
         while (!loadOp.isDone)
-        {
             yield return null;
-        }
 
-        // 로딩 UI 종료
-        HideLoadingUI();
+        // 로딩 UI 종료 -> 임시 제거
+        //Managers.UI.HideLoadingUI();
 
-        // 완료 콜백
         onComplete?.Invoke();
     }
 
-    private void ShowLoadingUI()
+
+    /// <summary>
+    /// 씬을 Additive 방식으로 추가 로드
+    /// </summary>
+    public void AddSceneAsync(string sceneName, Action onComplete = null)
     {
-        if (loadingUIInstance == null)
+        Managers.Instance.StartCoroutine(AddSceneCoroutine(sceneName, onComplete));
+    }
+
+    private IEnumerator AddSceneCoroutine(string sceneName, Action onComplete)
+    {
+        AsyncOperation loadOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        while (!loadOp.isDone)
+            yield return null;
+
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// Additive로 로드한 씬 제거
+    /// </summary>
+    public void UnloadSceneAsync(string sceneName, Action onComplete = null)
+    {
+        Managers.Instance.StartCoroutine(UnloadSceneCoroutine(sceneName, onComplete));
+    }
+
+    private IEnumerator UnloadSceneCoroutine(string sceneName, Action onComplete)
+    {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.isLoaded)
         {
-            loadingUIInstance = Managers.Resource.Instantiate(TypeToPath.GetPath(UIType.Loading));
-            loadingUI = loadingUIInstance.GetComponent<LoadingUI>();
-
-            // 로딩 이미지 설정 (Resources 폴더에 로고 이미지가 있다고 가정) => 추후 수정
-            var logoSprite = Resources.Load<Sprite>("UI/Logo");
-            loadingUI.SetLoadingImage(logoSprite);
-
-            // 툴팁 텍스트 설정
-            loadingUI.SetTooltip("씬을 로드하는 중입니다. 잠시만 기다려주세요...");
+            Debug.LogWarning($"[SceneManagerEx] '{sceneName}' 씬이 로드되어 있지 않습니다.");
+            yield break;
         }
-        loadingUIInstance.SetActive(true);
-        UpdateLoadingProgress(0f);
-    }
 
+        AsyncOperation unloadOp = SceneManager.UnloadSceneAsync(scene);
+        while (!unloadOp.isDone)
+            yield return null;
 
-    private void UpdateLoadingProgress(float progress)
-    {
-        loadingUI?.SetProgress(progress);
-    }
-
-    private void HideLoadingUI()
-    {
-        if (loadingUIInstance != null)
-            loadingUIInstance.SetActive(false);
+        onComplete?.Invoke();
     }
 }

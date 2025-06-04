@@ -11,13 +11,13 @@ using System.Collections.Generic;
 
 public static class IdGenerator
 {
-    private static readonly Dictionary<ObjectType, Queue<int>> _recycled = new();
-    private static readonly Dictionary<ObjectType, int> _counters = new();
+    private static readonly Dictionary<Enums.ObjectType, Queue<int>> _recycled = new();
+    private static readonly Dictionary<Enums.ObjectType, int> _counters = new();
 
     /// <summary>
     /// 타입별로 고유한 아이디를 생성
     /// </summary>
-    public static int GenerateId(ObjectType type)
+    public static int GenerateId(Enums.ObjectType type)
     {
         if (!_recycled.ContainsKey(type))
             _recycled[type] = new Queue<int>();
@@ -39,7 +39,7 @@ public static class IdGenerator
 
     public static void RecycleId(int id)
     {
-        ObjectType type = (ObjectType)((id >> 24) & 0x7F);
+        Enums.ObjectType type = (Enums.ObjectType)((id >> 24) & 0x7F);
         int index = id & 0xFFFFFF;
 
         if (!_recycled.ContainsKey(type))

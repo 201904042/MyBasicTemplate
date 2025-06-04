@@ -3,19 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//타입에 따른 리소스이후의 경로
 public static class TypeToPath
 {
     private static readonly Dictionary<Type, IDictionary> _typeToPathMap = new()
     {
-        { typeof(UIType), new Dictionary<UIType, string>
+        { typeof(Enums.UIType), new Dictionary<Enums.UIType, string>
             {
-                { UIType.Test, "Prefabs/UI/TestUI" },
+                { Enums.UIType.Test, "Prefabs/UI/TestUI" },
+                { Enums.UIType.Loading, "Prefabs/UI/TestUI" },
             }
         },
-        { typeof(ObjectType), new Dictionary<ObjectType, string>
+        { typeof(Enums.ObjectType), new Dictionary<Enums.ObjectType, string>
             {
-                { ObjectType.Test, "Prefabs/Object/TestPrefab" },
-                { ObjectType.Player, "Prefabs/Object/Player" }
+                { Enums.ObjectType.Test, "Prefabs/Object/TestPrefab" },
+                { Enums.ObjectType.PoolTest, "Prefabs/Object/PoolableTestPrefab" },
+                { Enums.ObjectType.Player, "Prefabs/Object/Player" }
             }
         },
     };

@@ -27,10 +27,10 @@ public class Managers : MonoBehaviour
             return;
 
         Debug.Log("Managers 초기화 시작");
-        GameObject managerObj = GameObject.Find("Managers");
+        GameObject managerObj = GameObject.Find("@Managers");
         if (managerObj == null)
         {
-            managerObj = new GameObject("Managers");
+            managerObj = new GameObject("@Managers");
             _instance = managerObj.AddComponent<Managers>();
         }
         else

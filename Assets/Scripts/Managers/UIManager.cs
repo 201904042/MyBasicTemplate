@@ -7,6 +7,9 @@ public class UIManager : ManagerBase
 
     private Transform _uiRoot;
 
+    private string _loadingUIPath => TypeToPath.GetPath(Enums.UIType.Loading);
+    private LoadingUI _loadingUI;
+
     public override void Init()
     {
         base.Init();
@@ -27,12 +30,13 @@ public class UIManager : ManagerBase
                 Object.Destroy(ui.gameObject);
         }
         _uiDic.Clear();
+        _loadingUI = null;
     }
 
-    public T ShowUI<T>(UIType type) where T : UIBase
+    public T ShowUI<T>(Enums.UIType type) where T : UIBase
     {
         string prefabPath = TypeToPath.GetPath(type);
-        
+
         if (_uiDic.TryGetValue(prefabPath, out var existingUI))
         {
             existingUI.gameObject.SetActive(true);
@@ -73,5 +77,39 @@ public class UIManager : ManagerBase
         }
     }
 
-   
+    // --------------------------
+    // ▼ Loading UI 전용 기능 ▼
+    // --------------------------
+
+    public void ShowLoadingUI(string tooltipText)
+    {
+        if (_loadingUI == null)
+        {
+            _loadingUI = ShowUI<LoadingUI>(Enums.UIType.Loading);
+            if (_loadingUI == null)
+            {
+                Debug.LogError("LoadingUI 생성 실패");
+                return;
+            }
+
+            // 리소스 로고 로드 (Resources 폴더 기준)
+            var logoSprite = Resources.Load<Sprite>("UI/Logo");
+            _loadingUI.SetLoadingImage(logoSprite);
+        }
+
+        _loadingUI.gameObject.SetActive(true);
+        _loadingUI.SetTooltip(tooltipText);
+        _loadingUI.SetProgress(0f);
+    }
+
+    public void UpdateLoadingProgress(float progress)
+    {
+        _loadingUI?.SetProgress(progress);
+    }
+
+    public void HideLoadingUI()
+    {
+        if (_loadingUI != null)
+            _loadingUI.gameObject.SetActive(false);
+    }
 }
